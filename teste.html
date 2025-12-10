@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Galeria Automática</title>
+
+  <!-- PhotoSwipe CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/photoswipe@5/dist/photoswipe.css">
+
+  <style>
+    body {
+      font-family: Arial;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+    h1 { text-align: center; }
+    .gallery {
+      max-width: 1200px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 15px;
+    }
+    .gallery img {
+      width: 100%;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      object-fit: cover;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>Galeria Automática</h1>
+
+<div id="gallery" class="gallery"></div>
+
+<!-- PhotoSwipeJS -->
+<script type="module">
+  import PhotoSwipeLightbox from "https://unpkg.com/photoswipe@5/dist/photoswipe-lightbox.esm.js";
+
+  const usuario = "JORJ2025";
+  const repositorio = "GALERIA";
+  const pasta = "iamgens";
+
+  const galleryEl = document.getElementById("gallery");
+
+  // Carrega os arquivos da pasta
+  fetch(`https://api.github.com/repos/${usuario}/${repositorio}/contents/${pasta}`)
+    .then(res => res.json())
+    .then(files => {
+      files
+        .filter(file => file.type === "file" && file.name.match(/\.(jpg|jpeg|png|gif|webp)$/i))
+        .forEach(file => {
+          const full = file.download_url;  // imagem original
+          const thumb = file.download_url; // você pode criar miniaturas depois
+
+          // você pode ajustar a largura/altura padrão
+          const width = 1600;
+          const height = 900;
+
+          const link = document.createElement("a");
+          link.href = full;
+          link.dataset.pswpWidth = width;
+          link.dataset.pswpHeight = height;
+
+          const img = document.createElement("img");
+          img.src = thumb;
+
+          link.appendChild(img);
+          galleryEl.appendChild(link);
+        });
+
+      // Inicializa o PhotoSwipe depois de carregar tudo
+      const lightbox = new PhotoSwipeLightbox({
+        gallery: '#gallery',
+        children: 'a',
+        pswpModule: () => import("https://unpkg.com/photoswipe@5/dist/photoswipe.esm.js")
+      });
+      lightbox.init();
+    });
+</script>
+
+</body>
+</html>
